@@ -55,13 +55,15 @@ public class RestaurantController {
     GetRestaurantsResponse getRestaurantsResponse;
 
     if (getRestaurantsRequest.getLatitude() != null && getRestaurantsRequest.getLongitude() != null
-      && getRestaurantsRequest.getLatitude() >= -90 && getRestaurantsRequest.getLatitude() <= 90
-      && getRestaurantsRequest.getLongitude() >= -180 && getRestaurantsRequest.getLongitude() <= 180) {
-        getRestaurantsResponse = restaurantService.findAllRestaurantsCloseBy(getRestaurantsRequest, LocalTime.now());
-        log.info("getRestaurants returned {}", getRestaurantsResponse);
-        return ResponseEntity.ok().body(getRestaurantsResponse);
+        && getRestaurantsRequest.getLatitude() >= -90 && getRestaurantsRequest.getLatitude() <= 90
+        && getRestaurantsRequest.getLongitude() >= -180 
+        && getRestaurantsRequest.getLongitude() <= 180) {
+      getRestaurantsResponse = restaurantService.findAllRestaurantsCloseBy(
+        getRestaurantsRequest, LocalTime.now());
+      log.info("getRestaurants returned {}", getRestaurantsResponse);
+      return ResponseEntity.ok().body(getRestaurantsResponse);
     } else {
-        return ResponseEntity.badRequest().body(null);
+      return ResponseEntity.badRequest().body(null);
     }
   }
 

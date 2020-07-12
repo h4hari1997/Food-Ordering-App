@@ -40,22 +40,22 @@ public class RestaurantServiceImpl implements RestaurantService {
   public GetRestaurantsResponse findAllRestaurantsCloseBy(
       GetRestaurantsRequest getRestaurantsRequest, LocalTime currentTime) {
         
-        List<Restaurant> restaurant;
-        int h = currentTime.getHour();
-        int m = currentTime.getMinute();
-        if ((h >= 8 && h <= 9) || (h == 10 && m == 0) || (h == 13) || (h == 14 && m == 0) 
-          || (h >= 19 && h <= 20) || (h == 21 && m == 0)) {
-            restaurant = restaurantRepositoryService.findAllRestaurantsCloseBy(
-              getRestaurantsRequest.getLatitude(), getRestaurantsRequest.getLongitude(), 
-              currentTime, peakHoursServingRadiusInKms);
-        } else {
-            restaurant = restaurantRepositoryService.findAllRestaurantsCloseBy(
-              getRestaurantsRequest.getLatitude(), getRestaurantsRequest.getLongitude(), 
-              currentTime, normalHoursServingRadiusInKms);
-        }
-        GetRestaurantsResponse response = new GetRestaurantsResponse(restaurant);
-        log.info(response);
-        return response;
+    List<Restaurant> restaurant;
+    int h = currentTime.getHour();
+    int m = currentTime.getMinute();
+    if ((h >= 8 && h <= 9) || (h == 10 && m == 0) || (h == 13) || (h == 14 && m == 0) 
+        || (h >= 19 && h <= 20) || (h == 21 && m == 0)) {
+      restaurant = restaurantRepositoryService.findAllRestaurantsCloseBy(
+        getRestaurantsRequest.getLatitude(), getRestaurantsRequest.getLongitude(), 
+        currentTime, peakHoursServingRadiusInKms);
+    } else {
+      restaurant = restaurantRepositoryService.findAllRestaurantsCloseBy(
+        getRestaurantsRequest.getLatitude(), getRestaurantsRequest.getLongitude(), 
+        currentTime, normalHoursServingRadiusInKms);
+    }
+    GetRestaurantsResponse response = new GetRestaurantsResponse(restaurant);
+    log.info(response);
+    return response;
     
   }
 
