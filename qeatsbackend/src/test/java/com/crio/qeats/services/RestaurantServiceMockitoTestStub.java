@@ -72,7 +72,7 @@ public class RestaurantServiceMockitoTestStub {
     // Notes - You can create additional mocks, setup the same and try out.
 
 
-     when(restaurantRepositoryServiceMock
+    when(restaurantRepositoryServiceMock
             .findAllRestaurantsCloseBy(any(Double.class), any(Double.class),
                 eq(LocalTime.of(3, 0)),
                 eq(5.0)))
