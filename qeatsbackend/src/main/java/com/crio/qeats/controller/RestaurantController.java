@@ -46,7 +46,6 @@ public class RestaurantController {
 
 
 
-
   @GetMapping(RESTAURANTS_API)
   public ResponseEntity<GetRestaurantsResponse> getRestaurants(
       GetRestaurantsRequest getRestaurantsRequest) {
