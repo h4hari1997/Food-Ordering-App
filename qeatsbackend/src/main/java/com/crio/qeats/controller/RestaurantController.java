@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 // TODO: CRIO_TASK_MODULE_RESTAURANTSAPI
 // Implement Controller using Spring annotations.
@@ -52,8 +53,11 @@ public class RestaurantController {
   private RestaurantService restaurantService;
 
   @Bean
-  public StringHttpMessageConverter stringHttpMessageConverter() {
-    return new StringHttpMessageConverter(Charset.forName("UTF-8"));
+  CharacterEncodingFilter characterEncodingFilter() {
+    CharacterEncodingFilter filter = new CharacterEncodingFilter();
+    filter.setEncoding("UTF-8");
+    filter.setForceEncoding(true);
+    return filter;
   }
 
   @GetMapping(RESTAURANTS_API)
