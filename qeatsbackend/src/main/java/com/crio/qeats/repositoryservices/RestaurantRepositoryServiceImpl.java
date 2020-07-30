@@ -66,7 +66,7 @@ public class RestaurantRepositoryServiceImpl implements RestaurantRepositoryServ
 
     ModelMapper modelMapper = modelMapperProvider.get();
     List<RestaurantEntity> restaurantEntities = mongoTemplate.findAll(RestaurantEntity.class);
-    ArrayList<Restaurant> restaurants = new ArrayList<Restaurant>();
+    List<Restaurant> restaurants = new ArrayList<Restaurant>();
     for (RestaurantEntity restaurantEntity : restaurantEntities) {
       if (isRestaurantCloseByAndOpen(restaurantEntity, currentTime, latitude,
           longitude, servingRadiusInKms)) {
