@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,8 @@ import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.inject.Provider;
+
+import org.apache.tomcat.util.codec.binary.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -70,7 +73,14 @@ public class RestaurantRepositoryServiceImpl implements RestaurantRepositoryServ
     for (RestaurantEntity restaurantEntity : restaurantEntities) {
       if (isRestaurantCloseByAndOpen(restaurantEntity, currentTime, latitude,
           longitude, servingRadiusInKms)) {
-        restaurants.add(modelMapper.map(restaurantEntity, Restaurant.class));
+        Restaurant x = modelMapper.map(restaurantEntity, Restaurant.class);
+        //byte[] bytes = StringUtils.getBytesUtf8(x.getName());
+        //x.setName(StringUtils.newStringUtf8(bytes));
+        byte[] bytes = x.getName().getBytes();
+        x.setName(new String(bytes, StandardCharsets.US_ASCII));
+ 
+        restaurants.add(x);
+        //restaurants.add(modelMapper.map(restaurantEntity, Restaurant.class));
       }
     }
   

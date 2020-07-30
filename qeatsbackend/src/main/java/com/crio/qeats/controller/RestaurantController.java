@@ -64,6 +64,8 @@ public class RestaurantController {
         && getRestaurantsRequest.getLongitude() <= 180) {
       getRestaurantsResponse = restaurantService.findAllRestaurantsCloseBy(
         getRestaurantsRequest, LocalTime.now());
+      //getRestaurantsResponse = restaurantService.findAllRestaurantsCloseBy(
+      //    getRestaurantsRequest, time1);
       log.info("getRestaurants returned {}", getRestaurantsResponse);
       return ResponseEntity.ok().body(getRestaurantsResponse);
     } else {
