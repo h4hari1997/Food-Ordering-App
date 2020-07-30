@@ -60,9 +60,6 @@ public class RestaurantController {
   public ResponseEntity<GetRestaurantsResponse> getRestaurants(
       GetRestaurantsRequest getRestaurantsRequest) {
 
-    //ZoneId zone2 = ZoneId.of("Asia/Tokyo");
-    //LocalTime time1 = LocalTime.now(zone2);
-
     log.info("getRestaurants called with {}", getRestaurantsRequest);
     GetRestaurantsResponse getRestaurantsResponse;
 
@@ -72,16 +69,11 @@ public class RestaurantController {
         && getRestaurantsRequest.getLongitude() <= 180) {
       getRestaurantsResponse = restaurantService.findAllRestaurantsCloseBy(
         getRestaurantsRequest, LocalTime.now());
-      //getRestaurantsResponse = restaurantService.findAllRestaurantsCloseBy(
-      //    getRestaurantsRequest, time1);
 
       for (int i = 0;i < getRestaurantsResponse.getRestaurants().size();i++) {
         Restaurant y = getRestaurantsResponse.getRestaurants().get(i);
         byte[] bytes = StringUtils.getBytesUtf8(y.getName());
-        //y.setName(StringUtils.newStringUtf8(bytes));
         getRestaurantsResponse.getRestaurants().get(i).setName(StringUtils.newStringUtf8(bytes));
-        //byte[] bytes = x.getName().getBytes();
-        //x.setName(new String(bytes, StandardCharsets.US_ASCII));
       }
       log.info("getRestaurants returned {}", getRestaurantsResponse);
       return ResponseEntity.ok().body(getRestaurantsResponse);
