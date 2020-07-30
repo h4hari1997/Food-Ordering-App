@@ -9,6 +9,7 @@ package com.crio.qeats.exchanges;
 import com.crio.qeats.dto.Restaurant;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -54,7 +55,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GetRestaurantsResponse {
-  List<Restaurant> restaurants;
+  List<Restaurant> restaurants = new ArrayList<>();
 }
 
 // }
