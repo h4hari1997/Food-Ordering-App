@@ -6,6 +6,7 @@
 
 package com.crio.qeats.controller;
 
+import com.crio.qeats.dto.Restaurant;
 import com.crio.qeats.exchanges.GetRestaurantsRequest;
 import com.crio.qeats.exchanges.GetRestaurantsResponse;
 import com.crio.qeats.services.RestaurantService;
@@ -16,6 +17,8 @@ import java.time.ZoneId;
 
 import javax.validation.Valid;
 import lombok.extern.log4j.Log4j2;
+
+import org.apache.tomcat.util.codec.binary.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
@@ -52,13 +55,6 @@ public class RestaurantController {
   @Autowired
   private RestaurantService restaurantService;
 
-  @Bean
-  CharacterEncodingFilter characterEncodingFilter() {
-    CharacterEncodingFilter filter = new CharacterEncodingFilter();
-    filter.setEncoding("UTF-8");
-    filter.setForceEncoding(true);
-    return filter;
-  }
 
   @GetMapping(RESTAURANTS_API)
   public ResponseEntity<GetRestaurantsResponse> getRestaurants(
@@ -78,6 +74,15 @@ public class RestaurantController {
         getRestaurantsRequest, LocalTime.now());
       //getRestaurantsResponse = restaurantService.findAllRestaurantsCloseBy(
       //    getRestaurantsRequest, time1);
+
+      for (int i = 0;i < getRestaurantsResponse.getRestaurants().size();i++) {
+        Restaurant y = getRestaurantsResponse.getRestaurants().get(i);
+        byte[] bytes = StringUtils.getBytesUtf8(y.getName());
+        //y.setName(StringUtils.newStringUtf8(bytes));
+        getRestaurantsResponse.getRestaurants().get(i).setName(StringUtils.newStringUtf8(bytes));
+        //byte[] bytes = x.getName().getBytes();
+        //x.setName(new String(bytes, StandardCharsets.US_ASCII));
+      }
       log.info("getRestaurants returned {}", getRestaurantsResponse);
       return ResponseEntity.ok().body(getRestaurantsResponse);
     } else {
