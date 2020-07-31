@@ -72,8 +72,9 @@ public class RestaurantController {
 
       for (int i = 0;i < getRestaurantsResponse.getRestaurants().size();i++) {
         Restaurant y = getRestaurantsResponse.getRestaurants().get(i);
-        byte[] bytes = StringUtils.getBytesUtf8(y.getName());
-        getRestaurantsResponse.getRestaurants().get(i).setName(StringUtils.newStringUtf8(bytes));
+        //byte[] bytes = StringUtils.getBytesUtf8(y.getName());
+        //getRestaurantsResponse.getRestaurants().get(i).setName(StringUtils.newStringUtf8(bytes));
+        getRestaurantsResponse.getRestaurants().get(i).setName("sample");
       }
       log.info("getRestaurants returned {}", getRestaurantsResponse);
       return ResponseEntity.ok().body(getRestaurantsResponse);
