@@ -54,7 +54,6 @@ import lombok.RequiredArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GetRestaurantsResponse {
   List<Restaurant> restaurants;
