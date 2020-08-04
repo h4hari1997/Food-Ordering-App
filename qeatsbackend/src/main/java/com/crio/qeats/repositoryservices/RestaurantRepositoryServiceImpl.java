@@ -40,7 +40,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 
 @Service
@@ -92,14 +91,8 @@ public class RestaurantRepositoryServiceImpl implements RestaurantRepositoryServ
       e.printStackTrace();
     }
 
-    JedisPool jedispool = redisConfiguration.getJedisPool();
-    Jedis jedis = null;
-    try {
-      jedis = jedispool.getResource();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
+    Jedis jedis = redisConfiguration.getJedisPool().getResource();
+    
     GeoLocation geoLocation = new GeoLocation(latitude, longitude);
     GeoHash geoHash = GeoHash.withCharacterPrecision(geoLocation.getLatitude(),
         geoLocation.getLongitude(), 7);
@@ -113,15 +106,8 @@ public class RestaurantRepositoryServiceImpl implements RestaurantRepositoryServ
 
     List<Restaurant> restaurantList = new ArrayList<>();
 
+    Jedis jedis = redisConfiguration.getJedisPool().getResource();
 
-    JedisPool jedispool = redisConfiguration.getJedisPool();
-    Jedis jedis = null;
-    try {
-      jedis = jedispool.getResource();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    
     GeoLocation geoLocation = new GeoLocation(latitude, longitude);
     GeoHash geoHash = GeoHash.withCharacterPrecision(geoLocation.getLatitude(),
         geoLocation.getLongitude(), 7);

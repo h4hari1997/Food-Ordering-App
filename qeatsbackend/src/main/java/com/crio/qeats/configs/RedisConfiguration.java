@@ -49,7 +49,8 @@ public class RedisConfiguration {
       this.jedisPool = new JedisPool(new JedisPoolConfig(), RedisConfiguration.redisHost, 
           this.redisPort, RedisConfiguration.REDIS_ENTRY_EXPIRY_IN_SECONDS);
     } catch (Exception e) {
-      e.printStackTrace();
+      System.out.println("Mass1");
+      //e.printStackTrace();
     }
   }
 
@@ -68,6 +69,7 @@ public class RedisConfiguration {
       return true;
     } catch (Exception e) {
       // e.printStackTrace();
+      System.out.println("Mass2");
       return false;
     }
   }
