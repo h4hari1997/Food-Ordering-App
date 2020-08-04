@@ -100,6 +100,12 @@ allprojects {
         testLogging.events ("STANDARD_ERROR")
         testLogging.events ("STANDARD_OUT")
     }
+    tasks.withType(com.github.spotbugs.SpotBugsTask) {
+        reports {
+            html.enabled true
+            xml.enabled false
+        }
+    }
 }
 
 subprojects {

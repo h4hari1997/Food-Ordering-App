@@ -7,6 +7,7 @@
 package com.crio.qeats.repositoryservices;
 
 import ch.hsr.geohash.GeoHash;
+import com.crio.qeats.configs.RedisConfiguration;
 import com.crio.qeats.dto.Restaurant;
 import com.crio.qeats.globals.GlobalConstants;
 import com.crio.qeats.models.RestaurantEntity;
@@ -38,6 +39,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
+import redis.clients.jedis.Jedis;
 
 
 @Service
@@ -45,6 +47,12 @@ public class RestaurantRepositoryServiceImpl implements RestaurantRepositoryServ
 
 
 
+  @Autowired
+  private RestaurantRepository restaurantRepository;
+
+
+  @Autowired
+  private RedisConfiguration redisConfiguration;
 
   @Autowired
   private MongoTemplate mongoTemplate;
@@ -59,39 +67,80 @@ public class RestaurantRepositoryServiceImpl implements RestaurantRepositoryServ
     return time.isAfter(openingTime) && time.isBefore(closingTime);
   }
 
-  // TODO: CRIO_TASK_MODULE_NOSQL
-  // Objectives:
-  // 1. Implement findAllRestaurantsCloseby.
-  // 2. Remember to keep the precision of GeoHash in mind while using it as a key.
-  // Check RestaurantRepositoryService.java file for the interface contract.
+
+
+  private List<Restaurant> findAllRestaurantsCloseFromDb(Double latitude, Double longitude, 
+      LocalTime currentTime, Double servingRadiusInKms) {
+    
+    List<Restaurant> restaurantList = new ArrayList<>();
+    ModelMapper modelMapper = modelMapperProvider.get();
+    //List<RestaurantEntity> restaurantEntities = mongoTemplate.findAll(RestaurantEntity.class);
+    for (RestaurantEntity restaurantEntity : restaurantRepository.findAll()) {
+      if (isRestaurantCloseByAndOpen(restaurantEntity, currentTime, latitude,
+          longitude, servingRadiusInKms)) {
+        restaurantList.add(modelMapper.map(restaurantEntity, Restaurant.class));
+      }
+    }
+
+    
+    String createdJsonString = "";
+
+    redisConfiguration.initCache();
+
+    try {
+      createdJsonString = new ObjectMapper().writeValueAsString(restaurantList);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    Jedis jedis = redisConfiguration.getJedisPool().getResource();
+    GeoLocation geoLocation = new GeoLocation(latitude, longitude);
+    GeoHash geoHash = GeoHash.withCharacterPrecision(geoLocation.getLatitude(),
+        geoLocation.getLongitude(), 7);
+
+    jedis.set(geoHash.toBase32(), createdJsonString);
+    return restaurantList;
+  }
+
+  private List<Restaurant> findAllRestaurantsCloseByFromCache(
+      Double latitude, Double longitude, LocalTime currentTime, Double servingRadiusInKms) {
+
+    List<Restaurant> restaurantList = new ArrayList<>();
+
+    Jedis jedis = redisConfiguration.getJedisPool().getResource();
+
+    GeoLocation geoLocation = new GeoLocation(latitude, longitude);
+    GeoHash geoHash = GeoHash.withCharacterPrecision(geoLocation.getLatitude(),
+        geoLocation.getLongitude(), 7);
+
+    if (!(jedis.exists(geoHash.toBase32()))) {
+      return findAllRestaurantsCloseFromDb(latitude, longitude, currentTime, servingRadiusInKms);
+    }
+
+    String jsonStringFromCache = "";
+
+    try {
+      jsonStringFromCache = jedis.get(geoHash.toBase32());
+      restaurantList = new ObjectMapper().readValue(jsonStringFromCache, 
+          new TypeReference<List<Restaurant>>() {
+            });
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return restaurantList;
+  }
+
+
   public List<Restaurant> findAllRestaurantsCloseBy(Double latitude,
       Double longitude, LocalTime currentTime, Double servingRadiusInKms) {
 
-    ModelMapper modelMapper = modelMapperProvider.get();
-    List<RestaurantEntity> restaurantEntities = mongoTemplate.findAll(RestaurantEntity.class);
-    List<Restaurant> restaurants = new ArrayList<Restaurant>();
-    for (RestaurantEntity restaurantEntity : restaurantEntities) {
-      if (isRestaurantCloseByAndOpen(restaurantEntity, currentTime, latitude,
-          longitude, servingRadiusInKms)) {
-        /*      Restaurant x = modelMapper.map(restaurantEntity, Restaurant.class);
-        byte[] bytes = StringUtils.getBytesUtf8(x.getName());
-        //x.setName(StringUtils.newStringUtf8(bytes));
-        //byte[] bytes = x.getName().getBytes();
-        x.setName(new String(bytes, StandardCharsets.US_ASCII));
- 
-        restaurants.add(x);*/
-        restaurants.add(modelMapper.map(restaurantEntity, Restaurant.class));
-      }
+    if (redisConfiguration.isCacheAvailable()) {
+      return findAllRestaurantsCloseByFromCache(latitude, longitude, currentTime,
+          servingRadiusInKms);
+    } else {
+      return findAllRestaurantsCloseFromDb(latitude, longitude, currentTime, servingRadiusInKms);
     }
-  
-
-
-
-      //CHECKSTYLE:OFF
-      //CHECKSTYLE:ON
-
-
-    return restaurants;
   }
 
 

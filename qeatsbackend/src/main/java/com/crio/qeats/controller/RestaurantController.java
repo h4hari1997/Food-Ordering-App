@@ -60,6 +60,11 @@ public class RestaurantController {
   public ResponseEntity<GetRestaurantsResponse> getRestaurants(
       GetRestaurantsRequest getRestaurantsRequest) {
 
+    ZoneId zone2 = ZoneId.of("Europe/Paris");
+    LocalTime time1 = LocalTime.now(zone2);
+
+
+
     log.info("getRestaurants called with {}", getRestaurantsRequest);
     GetRestaurantsResponse getRestaurantsResponse;
 
@@ -68,14 +73,8 @@ public class RestaurantController {
         && getRestaurantsRequest.getLongitude() >= -180 
         && getRestaurantsRequest.getLongitude() <= 180) {
       getRestaurantsResponse = restaurantService.findAllRestaurantsCloseBy(
-        getRestaurantsRequest, LocalTime.now());
+        getRestaurantsRequest, time1);
 
-      for (int i = 0;i < getRestaurantsResponse.getRestaurants().size();i++) {
-        Restaurant y = getRestaurantsResponse.getRestaurants().get(i);
-        //byte[] bytes = StringUtils.getBytesUtf8(y.getName());
-        //getRestaurantsResponse.getRestaurants().get(i).setName(StringUtils.newStringUtf8(bytes));
-        getRestaurantsResponse.getRestaurants().get(i).setName("sample");
-      }
       log.info("getRestaurants returned {}", getRestaurantsResponse);
       return ResponseEntity.ok().body(getRestaurantsResponse);
     } else {
@@ -117,15 +116,6 @@ public class RestaurantController {
   // curl -X GET "http://localhost:8081/qeats/v1/menu?restaurantId=11"
 
 
-
-
-
-
-
-
-
-
-
-
+  
 }
 
