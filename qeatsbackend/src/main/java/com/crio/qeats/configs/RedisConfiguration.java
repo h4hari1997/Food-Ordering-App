@@ -45,8 +45,12 @@ public class RedisConfiguration {
    */
   @PostConstruct
   public void initCache() {
-    this.jedisPool = new JedisPool(new JedisPoolConfig(), RedisConfiguration.redisHost, 
-      this.redisPort, RedisConfiguration.REDIS_ENTRY_EXPIRY_IN_SECONDS);
+    try {
+      this.jedisPool = new JedisPool(new JedisPoolConfig(), RedisConfiguration.redisHost, 
+          this.redisPort, RedisConfiguration.REDIS_ENTRY_EXPIRY_IN_SECONDS);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
 
@@ -59,8 +63,12 @@ public class RedisConfiguration {
 
     if (this.jedisPool == null) {
       return false;
-    } else {
+    }     
+    try (Jedis jedis = getJedisPool().getResource()) {
       return true;
+    } catch (Exception e) {
+      // e.printStackTrace();
+      return false;
     }
   }
 
@@ -71,6 +79,7 @@ public class RedisConfiguration {
   public void destroyCache() {
 
     if (this.jedisPool != null) {
+      jedisPool.getResource().flushAll();
       jedisPool.close();
       jedisPool = null;
     }

@@ -45,11 +45,8 @@ import redis.clients.jedis.Jedis;
 @Service
 public class RestaurantRepositoryServiceImpl implements RestaurantRepositoryService {
 
-
-
   @Autowired
   private RestaurantRepository restaurantRepository;
-
 
   @Autowired
   private RedisConfiguration redisConfiguration;
