@@ -40,7 +40,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
-
+import redis.clients.jedis.JedisPool;
 
 @Service
 public class RestaurantRepositoryServiceImpl implements RestaurantRepositoryService {
@@ -78,7 +78,6 @@ public class RestaurantRepositoryServiceImpl implements RestaurantRepositoryServ
         restaurantList.add(modelMapper.map(restaurantEntity, Restaurant.class));
       }
     }
-
     
     String createdJsonString = "";
 
@@ -86,18 +85,29 @@ public class RestaurantRepositoryServiceImpl implements RestaurantRepositoryServ
 
     try {
       createdJsonString = new ObjectMapper().writeValueAsString(restaurantList);
-      System.out.println("Helllo");
     } catch (IOException e) {
       e.printStackTrace();
     }
 
-    Jedis jedis = redisConfiguration.getJedisPool().getResource();
+    //Jedis jedis = redisConfiguration.getJedisPool().getResource();
+    
+    JedisPool jedispool = redisConfiguration.getJedisPool();
+    Jedis jedis = null;
+
+    try {
+      jedis = jedispool.getResource();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     
     GeoLocation geoLocation = new GeoLocation(latitude, longitude);
     GeoHash geoHash = GeoHash.withCharacterPrecision(geoLocation.getLatitude(),
         geoLocation.getLongitude(), 7);
 
-    jedis.set(geoHash.toBase32(), createdJsonString);
+    if (jedis != null) {
+      jedis.set(geoHash.toBase32(), createdJsonString);
+    }
+    
     return restaurantList;
   }
 
@@ -106,20 +116,35 @@ public class RestaurantRepositoryServiceImpl implements RestaurantRepositoryServ
 
     List<Restaurant> restaurantList = new ArrayList<>();
 
-    Jedis jedis = redisConfiguration.getJedisPool().getResource();
+    //Jedis jedis = redisConfiguration.getJedisPool().getResource();
+
+    JedisPool jedispool = redisConfiguration.getJedisPool();
+    Jedis jedis = null;
+
+    try {
+      jedis = jedispool.getResource();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    
 
     GeoLocation geoLocation = new GeoLocation(latitude, longitude);
     GeoHash geoHash = GeoHash.withCharacterPrecision(geoLocation.getLatitude(),
         geoLocation.getLongitude(), 7);
 
-    if (!(jedis.exists(geoHash.toBase32()))) {
-      return findAllRestaurantsCloseFromDb(latitude, longitude, currentTime, servingRadiusInKms);
+    if (jedis != null) {
+      if (!(jedis.exists(geoHash.toBase32()))) {
+        return findAllRestaurantsCloseFromDb(latitude, longitude, currentTime, servingRadiusInKms);
+      }
     }
+    
 
     String jsonStringFromCache = "";
 
     try {
-      jsonStringFromCache = jedis.get(geoHash.toBase32());
+      if (jedis != null) {
+        jsonStringFromCache = jedis.get(geoHash.toBase32());
+      }
       restaurantList = new ObjectMapper().readValue(jsonStringFromCache, 
           new TypeReference<List<Restaurant>>() {
             });
