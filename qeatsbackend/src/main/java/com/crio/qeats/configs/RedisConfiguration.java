@@ -79,8 +79,10 @@ public class RedisConfiguration {
   public void destroyCache() {
 
     if (this.jedisPool != null) {
-      jedisPool.getResource().flushAll();
-      jedisPool.close();
+      if (jedisPool.getResource() != null) {
+        jedisPool.getResource().flushAll();
+      }
+      jedisPool.destroy();
       jedisPool = null;
     }
 
